@@ -2,22 +2,57 @@
   "name": "electron-angular6",
   "version": "0.0.0",
   "private": true,
-  "main": "main.ts",
+  "main": "./src/start.ts",
   "scripts": {
     "ng": "ng",
     "start": "npm-run-all -p ng:serve electron:serve",
     "build": "ng build",
     "build:prod": "ng build --prod",
+    "build:win": "npm run electron:windows",
     "ng:serve": "ng serve",
+    "wait:serve": "node ./script/wait-serve.ts",
     "electron:tsc": "tsc main.ts",
-    "electron:serve": "wait-on http-get://localhost:4200/ && electron-forge start",
-    "electron:local": "npm run build:prod && electron .",
+    "electron:serve": "npm run wait:serve && cross-env NODE_ENV=serve electron-forge start",
+    "electron:local": "npm run build:prod && electron-forge start",
+    "package:win": "node ./script/electron-forge-package.ts --platform=win32",
     "electron:linux": "npm run build:prod && npx electron-builder build --linux",
-    "electron:windows": "npm run build:prod && npx electron-forge package --platform=win32",
+    "electron:windows": "npm run build:prod && npx npm run package:win",
     "electron:mac": "npm run build:prod && npx electron-builder build --mac",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
+  },
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "npm"
+      },
+      "electronWinstallerConfig": {
+        "name": "electron-angular6"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "electronangular6"
+      }
+    }
   },
   "dependencies": {
     "@angular/animations": "^6.0.0",
@@ -42,6 +77,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "~4.2.1",
+    "cross-env": "^5.1.5",
     "electron": "^2.0.0",
     "electron-builder": "^20.13.4",
     "electron-compile": "^6.4.2",
